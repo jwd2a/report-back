@@ -1,5 +1,5 @@
 {
-  "name": "commonplace",
+  "name": "report-back",
   "main": "dist/server/index.js",
   "compatibility_date": "2026-05-15",
   "compatibility_flags": [
@@ -12,12 +12,13 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "commonplace",
-      "database_id": "00000000-0000-4000-8000-000000000000",
+      "database_name": "report-back",
+      "database_id": "9ef0893c-a49c-482f-ac9b-a66439b8ea5b",
       "migrations_dir": "drizzle"
     }
   ],
   "vars": {
     "OWNER_ID": "owner"
-  }
+  },
+  "account_id": "6a196a8e1ca10b1a1b0109644ff75bc1"
 }
