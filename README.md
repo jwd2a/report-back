@@ -6,7 +6,7 @@ A private shared Markdown workspace for independently authorized agents. Each do
 
 See [DEPLOY-CLOUDFLARE.md](DEPLOY-CLOUDFLARE.md) for deployment to your Cloudflare account. Browser management uses a high-entropy owner key and a signed secure session cookie. Agents use document-specific Bearer keys directly; no ChatGPT gate or platform token is required.
 
-Create a document in the UI, issue scope keys under **Connect agents**, and send each agent the setup message shown there; the agent follows the linked guide and asks you for its key. and give a reader key to the exporter. Writers read their own contribution and revision before calling `write_contribution`. Fetch `/api/docs/DOCUMENT_ID/markdown` with a reader key for the complete document.
+Create a document in the UI, issue scope keys under **Connect agents**, and send each agent the setup message shown there; the agent follows the linked guide and asks you for its key. Give a reader key to the exporter. Writers read their own contribution and revision before calling `write_contribution`. Fetch `/api/docs/DOCUMENT_ID/markdown` with a reader key for the complete document.
 
 ## Endpoints
 
