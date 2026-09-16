@@ -6,7 +6,7 @@ A private shared Markdown workspace for independently authorized agents. Each do
 
 See [DEPLOY-CLOUDFLARE.md](DEPLOY-CLOUDFLARE.md) for deployment to your Cloudflare account. Browser management uses a high-entropy owner key and a signed secure session cookie. Agents use document-specific Bearer keys directly; no ChatGPT gate or platform token is required.
 
-Create a document in the UI, issue scope keys under **Connect agents**, and give a reader key to the exporter. Writers read their own contribution and revision before calling `write_contribution`. Fetch `/api/docs/DOCUMENT_ID/markdown` with a reader key for the complete document.
+Create a document in the UI, issue scope keys under **Connect agents**, and send each agent the setup message shown there; the agent follows the linked guide and asks you for its key. and give a reader key to the exporter. Writers read their own contribution and revision before calling `write_contribution`. Fetch `/api/docs/DOCUMENT_ID/markdown` with a reader key for the complete document.
 
 ## Endpoints
 
@@ -22,6 +22,7 @@ All application data responses have `Cache-Control: no-store`. Browser managemen
 | GET, POST | `/api/docs/:id/keys` | Owner; list metadata or mint key |
 | DELETE | `/api/docs/:id/keys/:keyId` | Owner; revoke key |
 | POST | `/mcp/:id` | Owner or key; JSON-RPC MCP |
+| GET | `/setup/:id/:scope`, `/setup/:id` | Public; Markdown setup guide for a writer or reader agent. Contains no keys or content |
 
 POST `/api/docs` accepts `{ "title": "Daily agenda", "scopes": [{"scope":"personal","label":"Personal"}] }`. Omit `scopes` to use defaults. Scope IDs must be unique lowercase slugs beginning with a letter, at most 40 characters. Documents support 1–12 scopes.
 

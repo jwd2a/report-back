@@ -11,7 +11,7 @@ try{
  const sql=await readFile('drizzle/0000_needy_tattoo.sql','utf8');
  for(const statement of sql.split('--> statement-breakpoint'))await db.prepare(statement.trim()).run();
  await mkdir('.sites-runtime/tests',{recursive:true});
- await build({entryPoints:['app/api/docs/[[...path]]/route.ts','app/mcp/[id]/route.ts','app/api/session/route.ts'],outdir:'.sites-runtime/tests',outbase:'app',bundle:true,platform:'node',format:'esm',plugins:[{name:'test-env',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'env',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const env=globalThis.__testEnv;',loader:'js'}))}}]});
+ await build({entryPoints:['app/api/docs/[[...path]]/route.ts','app/mcp/[id]/route.ts','app/api/session/route.ts','app/setup/[[...path]]/route.ts'],outdir:'.sites-runtime/tests',outbase:'app',bundle:true,platform:'node',format:'esm',plugins:[{name:'test-env',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'env',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const env=globalThis.__testEnv;',loader:'js'}))}}]});
  const session=await import('../.sites-runtime/tests/api/session/route.js');
  const login=async(secret,origin='https://example.test')=>session.POST(new Request('https://example.test/api/session',{method:'POST',headers:{'Content-Type':'application/json',Origin:origin},body:JSON.stringify({secret})}));
  assert.equal((await login('b'.repeat(64))).status,401);
@@ -46,6 +46,13 @@ try{
  assert.equal((await call([id,'history'])).data.length,2);
  assert.equal((await call([id,'contributions','work'],'PUT',{markdown:'lost update',expected_revision:0},work)).status,409);
  assert.equal((await call([id,'contributions','work'],'PUT',{markdown:'Missing revision'},work)).status,400);
+ const setup=await import('../.sites-runtime/tests/setup/[[...path]]/route.js');
+ const guide=async(path)=>{const r=await setup.GET(new Request('https://example.test/setup/'+path.join('/')),{params:Promise.resolve({path})});return {status:r.status,type:r.headers.get('content-type'),text:await r.text()}};
+ const writerGuide=await guide([id,'work']);assert.equal(writerGuide.status,200);assert.ok(writerGuide.type.startsWith('text/markdown'));
+ assert.ok(writerGuide.text.includes('https://example.test/mcp/'+id)&&writerGuide.text.includes('write_contribution')&&writerGuide.text.includes('commonplace-work'));
+ assert.ok(!/cp_[0-9a-f]{64}/.test(writerGuide.text)&&!writerGuide.text.includes('Work secret')); // Public guide must not leak keys or content.
+ const readerGuide=await guide([id]);assert.equal(readerGuide.status,200);assert.ok(readerGuide.text.includes('read_document')&&!readerGuide.text.includes('write_contribution'));
+ assert.equal((await guide([id,'missing'])).status,404);assert.equal((await guide(['00000000-0000-4000-8000-000000000000'])).status,404);assert.equal((await guide([])).status,404);
  async function rpc(name,args={},t=personal,extra={}){const r=await mcp.POST(new Request('https://example.test/mcp/'+id,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t,...extra},body:JSON.stringify({jsonrpc:'2.0',id:1,method:name,params:args})}),{params:Promise.resolve({id})});return {status:r.status,data:await r.json()}}
  assert.equal((await rpc('initialize',{protocolVersion:'2025-11-25'})).data.result.protocolVersion,'2025-11-25');
  assert.deepEqual((await rpc('tools/list')).data.result.tools.map(t=>t.name),['read_contribution','write_contribution']);
@@ -62,5 +69,5 @@ try{
  const crossHost=await session.GET(new Request('https://other.test/api/session',{headers:{Cookie:cookie}}));assert.equal((await crossHost.json()).authenticated,false);
  globalThis.__testEnv.OWNER_SECRET='c'.repeat(64);
  assert.equal((await call([])).status,401); // Secret rotation invalidates old sessions.
- console.log('PASS: standalone owner login, forged identity-header rejection, signed cookie flags, tampered/cross-host cookies, secret rotation; real D1 migration, owner and document isolation, scope isolation, concurrent revision conflict, combined Markdown, revision history, read-only keys, MCP initialize/tools/read/write/errors, origin validation, protocol validation, key revocation.');
+ console.log('PASS: standalone owner login, forged identity-header rejection, signed cookie flags, tampered/cross-host cookies, secret rotation; real D1 migration, owner and document isolation, scope isolation, concurrent revision conflict, combined Markdown, revision history, read-only keys, MCP initialize/tools/read/write/errors, origin validation, protocol validation, key revocation, public setup guides.');
 }finally{await mf.dispose()}
