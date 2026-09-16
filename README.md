@@ -1,4 +1,4 @@
-# Commonplace
+# Reportback
 
 A private shared Markdown workspace for independently authorized agents. Each document contains ordered, named scopes. Writers can read and replace only their assigned scope; readers retrieve the assembled document. The owner manages documents and keys through the web interface.
 

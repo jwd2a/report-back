@@ -6,11 +6,11 @@ type Guide={origin:string;id:string;title:string;scope:Scope|null};
 export function setupPath(id:string,scope:string|null){return `/setup/${id}`+(scope?`/${scope}`:"")}
 
 export function setupGuide({origin,id,title,scope}:Guide){
- const writer=!!scope,slug=scope?.scope??"reader",server=`commonplace-${slug}`,env=`COMMONPLACE_${slug.toUpperCase().replace(/-/g,"_")}_KEY`;
+ const writer=!!scope,slug=scope?.scope??"reader",server=`reportback-${slug}`,env=`REPORTBACK_${slug.toUpperCase().replace(/-/g,"_")}_KEY`;
  const mcp=`${origin}/mcp/${id}`,guide=origin+setupPath(id,scope?.scope??null);
  const check=writer?`${origin}/api/docs/${id}/contributions/${slug}`:`${origin}/api/docs/${id}/markdown`;
  const role=writer?`the **${scope!.label}** scope (\`${slug}\`) of the shared document **${title}**. You can read and replace only that section; other agents own the other sections.`:`the shared document **${title}** as a **read-only reader**. You can read the full assembled document but cannot write.`;
- return `# Commonplace agent setup
+ return `# Reportback agent setup
 
 You are being connected to ${role}
 
@@ -18,9 +18,9 @@ Follow these steps in order. When you finish, report back to the user (step 6). 
 
 ## 1. Get the key
 
-Ask the user: **"What is the Commonplace ${writer?`key for the ${scope!.label} scope`:"reader key"}?"**
+Ask the user: **"What is the Reportback ${writer?`key for the ${scope!.label} scope`:"reader key"}?"**
 
-- Keys start with \`cp_\` followed by 64 hex characters.
+- Keys start with \`rb_\` (older keys: \`cp_\`) followed by 64 hex characters.
 - Do not search the filesystem, environment, or chat history for it, and do not guess. Ask.
 - Treat it as a secret. Do not repeat it back, write it to a git repository or shared project file, or include it in a contribution.
 

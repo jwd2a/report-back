@@ -23,7 +23,7 @@ try{
  const mcp=await import('../.sites-runtime/tests/mcp/[id]/route.js');
  async function call(path=[],method='GET',data,auth='owner-a'){
   const headers={'content-type':'application/json'};
-  if(auth?.startsWith('cp_'))headers.authorization='Bearer '+auth;else if(auth==='owner-a')headers.cookie=cookie;else if(auth)headers['oai-authenticated-user-id']=auth;
+  if(auth?.startsWith('rb_'))headers.authorization='Bearer '+auth;else if(auth==='owner-a')headers.cookie=cookie;else if(auth)headers['oai-authenticated-user-id']=auth;
   const req=new Request('https://example.test/api/docs/'+path.join('/'),{method,headers,body:data===undefined?undefined:JSON.stringify(data)});
   const r=await api[method](req,{params:Promise.resolve({path})});
   return {status:r.status,data:r.headers.get('content-type')?.includes('json')?await r.json():await r.text()};
@@ -49,8 +49,8 @@ try{
  const setup=await import('../.sites-runtime/tests/setup/[[...path]]/route.js');
  const guide=async(path)=>{const r=await setup.GET(new Request('https://example.test/setup/'+path.join('/')),{params:Promise.resolve({path})});return {status:r.status,type:r.headers.get('content-type'),text:await r.text()}};
  const writerGuide=await guide([id,'work']);assert.equal(writerGuide.status,200);assert.ok(writerGuide.type.startsWith('text/markdown'));
- assert.ok(writerGuide.text.includes('https://example.test/mcp/'+id)&&writerGuide.text.includes('write_contribution')&&writerGuide.text.includes('commonplace-work'));
- assert.ok(!/cp_[0-9a-f]{64}/.test(writerGuide.text)&&!writerGuide.text.includes('Work secret')); // Public guide must not leak keys or content.
+ assert.ok(writerGuide.text.includes('https://example.test/mcp/'+id)&&writerGuide.text.includes('write_contribution')&&writerGuide.text.includes('reportback-work'));
+ assert.ok(!/(rb|cp)_[0-9a-f]{64}/.test(writerGuide.text)&&!writerGuide.text.includes('Work secret')); // Public guide must not leak keys or content.
  const readerGuide=await guide([id]);assert.equal(readerGuide.status,200);assert.ok(readerGuide.text.includes('read_document')&&!readerGuide.text.includes('write_contribution'));
  assert.equal((await guide([id,'missing'])).status,404);assert.equal((await guide(['00000000-0000-4000-8000-000000000000'])).status,404);assert.equal((await guide([])).status,404);
  async function rpc(name,args={},t=personal,extra={}){const r=await mcp.POST(new Request('https://example.test/mcp/'+id,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t,...extra},body:JSON.stringify({jsonrpc:'2.0',id:1,method:name,params:args})}),{params:Promise.resolve({id})});return {status:r.status,data:await r.json()}}

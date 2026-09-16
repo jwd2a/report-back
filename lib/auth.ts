@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-const COOKIE="__Host-commonplace";
+const COOKIE="__Host-reportback";
 const TTL=86400;
 function secret(){const value=(env as unknown as {OWNER_SECRET?:string}).OWNER_SECRET;if(!value||!/^([a-f0-9]{64})$/i.test(value))throw new Error("Configure OWNER_SECRET with 32 random bytes encoded as hex");return value}
 const enc=new TextEncoder();

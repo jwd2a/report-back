@@ -4,7 +4,7 @@ export function database(): D1Database { const db = (env as unknown as {DB:D1Dat
 export class ApiError extends Error { constructor(public status:number,message:string){super(message)} }
 export const fail=(status:number,message:string):never=>{throw new ApiError(status,message)};
 export async function hash(token:string){const bytes=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(token));return Array.from(new Uint8Array(bytes),x=>x.toString(16).padStart(2,"0")).join("")}
-export function token(){return "cp_"+Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,"0")).join("")}
+export function token(){return "rb_"+Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,"0")).join("")}
 export function text(value:unknown,name:string,max=200){if(typeof value!=="string"||!value.trim()||value.length>max)fail(400,`${name} must be 1–${max} characters`);return (value as string).trim()}
 export async function body(req:Request){if(!req.headers.get("content-type")?.includes("application/json"))fail(415,"Use application/json");const raw=await req.text();if(raw.length>110000)fail(413,"Request too large");try{const parsed=JSON.parse(raw);if(!parsed||typeof parsed!=="object"||Array.isArray(parsed))fail(400,"Expected a JSON object");return parsed}catch{fail(400,"Invalid JSON object")}}
 export function originCheck(req:Request){const o=req.headers.get("origin");if(o&&o!==new URL(req.url).origin)fail(403,"Origin not allowed")}
@@ -34,4 +34,4 @@ export async function put(id:string,scope:string,data:any,actor:string){
  return {scope,revision:data.expected_revision+1,updated:time};
 }
 export function json(value:unknown,status=200){return Response.json(value,{status,headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}})}
-export function error(e:unknown){if(e instanceof ApiError)return json({error:e.message},e.status);console.error("Commonplace request failed",e);return json({error:"The service is unavailable. Your input has not been cleared; please retry."},503)}
+export function error(e:unknown){if(e instanceof ApiError)return json({error:e.message},e.status);console.error("Reportback request failed",e);return json({error:"The service is unavailable. Your input has not been cleared; please retry."},503)}

@@ -1,4 +1,4 @@
-# Deploy Commonplace to your Cloudflare account
+# Deploy Reportback to your Cloudflare account
 
 This is the standalone Cloudflare version. It does not require ChatGPT hosting, sign-in, or a platform bypass token. The original hosted copy is not changed by these files.
 
@@ -24,13 +24,13 @@ Use the account ID from your intended Cloudflare account. For CI, supply a scope
 ## 2. Create the database and configure the app
 
 ```bash
-pnpm exec wrangler d1 create commonplace
+pnpm exec wrangler d1 create reportback
 node scripts/configure-cloudflare.mjs YOUR_ACCOUNT_ID YOUR_D1_DATABASE_ID
 ```
 
 If you have multiple accounts, select the correct account when prompted or set `CLOUDFLARE_ACCOUNT_ID` in your environment. The setup script writes the returned IDs to `wrangler.jsonc`; these resource IDs are not credentials.
 
-The optional third argument selects a Worker name; default is `commonplace`. Confirm that this name does not refer to an unrelated existing Worker before deploying.
+The optional third argument selects a Worker name; default is `reportback`. Confirm that this name does not refer to an unrelated existing Worker before deploying.
 
 ## 3. Verify and deploy
 
@@ -65,7 +65,7 @@ The workspace generates per-document connection configurations. Example:
 ```json
 {
   "mcpServers": {
-    "commonplace": {
+    "reportback": {
       "type": "http",
       "url": "https://YOUR_WORKER_URL/mcp/DOCUMENT_ID",
       "headers": {"Authorization": "Bearer YOUR_SCOPE_KEY"}
